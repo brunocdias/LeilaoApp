@@ -1,0 +1,110 @@
+@model LeilaoApp.Models.ViewModel.LanceVM
+@{
+    var title = "Gerar um novo Lance";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form method="post" asp-action="Create" id="form_lance" enctype="multipart/form-data">
+
+    <div class="row px-2 mx-2 backgroundWhite border">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="col-12">
+            <h2 class="text-primary">@title</h2>
+            <br />
+        </div>
+        <div class="col-9">
+            <div class="form-group row">
+                <input type="hidden" asp-for="Lances.Id_Lance" />
+                <div class="col-4">
+                    <label asp-for="Lances.Id_Pessoa"></label>
+                </div>
+                <div class="col-8">
+                    @Html.DropDownListFor(m => m.Lances.Id_Pessoa, Model.PessoaList,
+                                             "- Por favor, selecione uma pessoa -", new { @class = "form-control" })
+
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="Lances.Id_Produto"></label>
+                </div>
+                <div class="col-8">
+
+                    @Html.DropDownListFor(m => m.Lances.Id_Produto, Model.ProdutoList,
+                                             "- Por favor selecione um produto -", new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="Lances.Valor"></label>
+                </div>
+                <div class="col-8">
+                    @Html.TextBoxFor(m => m.Lances.Valor, new { @class = "form-control" })
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-8 offset-4">
+                    <div class="row">
+
+                        <div class="col">
+                            <button type="button" onclick="return validadeInput()" class="btn btn-primary form-control">Gerar</button>
+                        </div>
+
+                        <div class="col">
+                            <a asp-action="Index" class="btn btn-success form-control">Voltar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+
+@section Scripts{
+    <script src="https://cdn.tiny.cloud/1/gki6z1p7ouy1e0zkds4um72199znwdot9owortqxwqkljlhv/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+
+
+        function validadeInput() {
+            $.ajax({
+                type: "Get",
+                url: "GetIdade?id=" + $("#Lances_Id_Pessoa").val(),
+                dataType: "json",
+                success: function (data) {
+                    if (data == "0") {
+                        swal("Pessoa precisa ser maior de 18");
+                    }
+                    else {
+                        $.ajax({
+                            type: "Get",
+                            url: "GetValor?id=" + $("#Lances_Id_Produto").val(),
+                            dataType: "json",
+                            success: function (data) {
+                                debugger;
+                                if ($("#Lances_Valor").val() <= data) {
+                                    swal("Valor do lance precisa ser mais alto!");
+                                }
+                                else
+                                    $("#form_lance").submit();
+                            },
+                            error: function (data) {
+                                swal("erro de conexão");
+                            }
+                        });
+                    }
+                },
+                error: function (data) {
+                    swal("erro de conexão");
+                }
+            });
+        }
+
+
+    </script>
+}
+
